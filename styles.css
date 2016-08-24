@@ -1,0 +1,46 @@
+html {
+	height: 100%;
+}
+
+body {
+	height: 100%;
+	background: White;
+	font: 15px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	color: #333;
+}
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+}
+
+.countdown {
+	font-size: 250px;
+}
+
+input{
+	width: 100%;
+	border: none;
+	font-size: 100px;
+	text-align: center;
+	color: #888;
+}
+input:focus {
+	outline: none;
+}
+input::selection {
+	background: Tomato;
+	color: White;
+}
+
+button {
+	padding: 1em;
+	background: ForestGreen;
+	color: White;
+	font-size: 30px;
+	border: none;
+	border-radius: 0.2em;
+}
