@@ -2,32 +2,20 @@ window.onload = function() {
 
 	// Grab the input and the button.
 	var input = document.querySelector('input');
-	var button = document.querySelector('button');
 
 	// Setup a change listener on the input.
 	input.addEventListener('input', function(e) {
 		checkInput(input.value);
+		setFontSize(input);
 	});
 
 	// Initially call the conversion function
 	checkInput(input.value);
-
-	// Listen for clicks on the button.
-	button.addEventListener('click', function(e) {
-		startCountdown(stringToSeconds(input.value));
-		input.value = "";
-	});
 }
 
 function checkInput(input) {
 	var result = stringToSeconds(input);
-	var startBtn = document.querySelector('button');
-
-	if(result) {
-		startBtn.style.display = 'block';	
-	} else {
-		startBtn.style.display = 'none';
-	}
+	console.log(result);
 }
 
 /***
@@ -72,7 +60,7 @@ function stringToSeconds(input) {
  ***/
 function startCountdown(amount) {
 	var secondsLeft = amount;
-	var countdownElement = document.querySelector('.countdown');
+	var input = document.querySelector('input');
 
 	var countdown = setInterval(function() {
 		if(secondsLeft === 0) {
@@ -80,7 +68,16 @@ function startCountdown(amount) {
 			console.log('Done! 😍');
 		} else {
 			secondsLeft -= 1;
-			countdownElement.innerHTML = secondsLeft;
+			input.value = '3m' + secondsLeft + 's';
+			console.log('Seconds left:', secondsLeft);
 		}
 	}, 1000);
 };
+
+
+function setFontSize(input) {
+	var maxSize = 50;
+	var numberOfCharacters = input.value.length || 1;
+	var fontSize = maxSize / (numberOfCharacters);
+	input.style.fontSize = fontSize + 'vw';
+}
