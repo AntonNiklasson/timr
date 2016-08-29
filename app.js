@@ -1,115 +1,139 @@
 window.onload = function() {
+	var countdown = null;
+	var countdownSeconds = 0;
+	var countdownPaused = false;
 
 	// Grab the input and the button.
 	var input = document.querySelector('input');
 
-	// Setup a change listener on the input.
-	input.addEventListener('input', function(e) {
-		checkInput(input.value);
-		setFontSize(input);
-	});
-
-	startCountdown();
-}
-
-function checkInput(input) {
-	var result = stringToSeconds(input);
-	console.log(result);
-}
-
-/***
-* Possible inputs to this function:
-* 
-* 60s
-* 10M30S
-* 1H20m30s
-* 1h
-***/
-function readableStringToSeconds(input) {
-
-	var timestamp = 0;
-
-	var secondsPattern = /[0-9]+s/i;
-	var minutesPattern = /[0-9]+m/i;
-	var hoursPattern   = /[0-9]+h/i;
-
-	// Grab the amount of hours.
-	var match = input.match(hoursPattern);
-	if(match != null) {
-		var str = match[0];
-		var hours = str.substring(0, str.length - 1);
-		timestamp += hours * 3600;
-		input = input.substring(match.index, str.length);
+	input.addEventListener('input', onInputInput);
+	input.addEventListener('focus', onInputFocus);
+	input.addEventListener('keypress', onInputKeypress);
+		
+	function onInputKeypress(e) {
+		if(e.keyCode === 13) {
+			console.log('enter');
+			startCountdown();
+		}
 	}
 
-	// Grab the amount of minutes.
-	var match = input.match(minutesPattern);
-	if(match != null) {
-		var str = match[0];
-		var minutes = str.substring(0, str.length - 1);
-		timestamp += minutes * 60;
-		input = input.substring(match.index, str.length);
+	function onInputFocus() {
+		console.log('focus');
+		countdownPaused = true;
 	}
 
-	// Grab the amount of seconds.
-	var match = input.match(secondsPattern);
-	if(match != null) {
-		var str = match[0];
-		var seconds = str.substring(0, str.length - 1);
-		timestamp += seconds;
-		input = input.substring(match.index, str.length);
+	function onInputInput() {
+
 	}
 
-	return timestamp;
-}
+	/***
+	* Possible inputs to this function:
+	* 
+	* 60s
+	* 10M30S
+	* 1H20m30s
+	* 1h
+	***/
+	function readableStringToSeconds(input) {
+		var timestamp = 0;
+		var secondsPattern = /[0-9]+s/i;
+		var minutesPattern = /[0-9]+m/i;
+		var hoursPattern   = /[0-9]+h/i;
 
-function secondsToReadableString(seconds) {
-	var hours = 0;
-	var minutes = 0;
-	var hourInSeconds = 3600;
-	var minuteInSeconds = 60;
+		// Hours.
+		var match = input.match(hoursPattern);
+		if(match != null) {
+			var str = match[0];
+			var hours = str.substring(0, str.length - 1);
+			timestamp += hours * 3600;
+			input = input.substring(match.index + str.length);
+		}
 
-	while(seconds > hourInSeconds) {
-		hours++;
-		seconds -= hourInSeconds;
+		// Minutes.
+		var match = input.match(minutesPattern);
+		if(match != null) {
+			var str = match[0];
+			var minutes = str.substring(0, str.length - 1);
+			timestamp += minutes * 60;
+			input = input.substring(match.index + str.length);
+		}
+
+		// Seconds.
+		var match = input.match(secondsPattern);
+		if(match != null) {
+			var str = match[0];
+			var seconds = str.substring(0, str.length - 1);
+			timestamp += seconds * 1; // Watch out for this being appended as a string instead of added as a number.
+			input = input.substring(match.index + str.length);
+		}
+
+		return timestamp;
 	}
 
-	while(seconds > minuteInSeconds) {
-		minutes++;
-		seconds -= minuteInSeconds;
+	function secondsToReadableString(seconds) {
+		var readableString = '';
+		var hours = 0;
+		var minutes = 0;
+		var hourInSeconds = 3600;
+		var minuteInSeconds = 60;
+
+		while(seconds > hourInSeconds) {
+			hours++;
+			seconds -= hourInSeconds;
+		}
+
+		while(seconds > minuteInSeconds) {
+			minutes++;
+			seconds -= minuteInSeconds;
+		}
+
+		if(hours > 0)
+			readableString += hours + 'h';
+		if(minutes > 0)
+			readableString += minutes + 'm';
+
+		readableString += seconds + 's';
+
+		return readableString;
 	}
 
-	var string = '';
+	/***
+	 * Start a countdown with `amount` number of milliseconds.
+	 ***/
+	function startCountdown() {
+		countdownPaused = false;
+		var input = document.querySelector('input');
 
-	if(hours > 0) string += hours + 'h';
-	if(minutes > 0) string += minutes + 'm';
+		input.blur();
 
-	string += seconds + 's';
+		if(!countdown)
+			countdown = setInterval(countdownTick, 1000);
+	};
 
-	return string;
-}
+	function pauseCountdown() {
+		countdownPaused = true;	
+	};
 
-/***
- * Start a countdown with `amount` number of milliseconds.
- ***/
-function startCountdown(amount) {
-	var input = document.querySelector('input');
-	var seconds = readableStringToSeconds(input.value);
-	
-	var countdown = setInterval(function() {
+	function countdownTick() {
+		var input = document.querySelector('input');
+		var seconds = readableStringToSeconds(input.value);
+
 		if(seconds === 0) {
 			clearInterval(countdown);
-		} else {
+			countdownDone();
+		} else if(!countdownPaused) {
 			seconds -= 1;
 			input.value = secondsToReadableString(seconds);
 		}
-	}, 1000);
-};
+	}
 
-
-function setFontSize(input) {
-	var maxSize = 40;
-	var numberOfCharacters = input.value.length || 1;
-	var fontSize = maxSize / (numberOfCharacters);
-	input.style.fontSize = fontSize + 'vw';
+	function countdownDone() {
+		Notification.requestPermission()
+			.then(function(result) {
+				if(result === 'granted') {
+					var notification = new Notification('Done!');
+				}
+			});
+	}
 }
+
