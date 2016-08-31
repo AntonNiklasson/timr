@@ -137,7 +137,8 @@ window.onload = function() {
 			.then(function(result) {
 				if(result === 'granted') {
 					var notification = new Notification('Timr', {
-						body: 'Done!'
+						body: 'Done!',
+						sticky: true
 					});
 				}
 			});
