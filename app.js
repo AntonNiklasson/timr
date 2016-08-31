@@ -12,6 +12,13 @@ window.onload = function() {
 	// Attach various event listeners.
 	attachListeners();
 
+	// Is there a timer set in the URL?
+	var hash = window.location.hash.substr(1);
+	if(hash !== "") {
+		document.querySelector('input').value = hash;
+		startTimer();
+	}
+
 	function attachListeners() {
 		var input = document.querySelector('input');
 		input.addEventListener('focus', onInputFocus);
