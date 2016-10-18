@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import './App.css';
+import AddTimer from './AddTimer';
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-	  	create-react-app
-      </div>
+      <AddTimer />
   );
   }
 }
