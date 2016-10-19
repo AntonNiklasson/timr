@@ -7,3 +7,5 @@ class AddTimer extends React.Component {
 		);
 	}
 }
+
+export default AddTimer
